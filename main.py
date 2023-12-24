@@ -12,7 +12,9 @@ class StudyAssistant:
         self.content = []
         self.current = -1
         self.randomPath = ""
-        self.savePath = "./memory_assistant_data/"
+        # for mac os
+        wave = os.path.expanduser("~")
+        self.savePath = wave+"/memory_assistant_data/"
         if not os.path.exists(self.savePath):
             os.mkdir(self.savePath)
 
