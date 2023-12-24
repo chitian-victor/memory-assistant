@@ -1,3 +1,4 @@
+import os.path
 from tkinter import *
 import tkinter.messagebox as GUI
 import random
@@ -11,6 +12,9 @@ class StudyAssistant:
         self.content = []
         self.current = -1
         self.randomPath = ""
+        self.savePath = "./memory_assistant_data/"
+        if not os.path.exists(self.savePath):
+            os.mkdir(self.savePath)
 
     def run(self):
         #main window
@@ -28,17 +32,17 @@ class StudyAssistant:
         #button: add
         Button(win, text='Add', command=self.add).place(x=750, y=80, width=120, height=70)
         button: random
-        Button(win, text='One Day random', command=self.randomContent("data/1day.txt"), font=('Arial', 12)).place(x=0, y=300, width=150, height=60)
-        Button(win, text='Three Days random', command=self.randomContent("data/3day.txt"), font=('Arial', 12)).place(x=150, y=300, width=150, height=60)
-        Button(win, text='Week random', command=self.randomContent("data/7day.txt"), font=('Arial', 12)).place(x=300, y=300, width=150, height=60)
-        Button(win, text='Month random', command=self.randomContent("data/30day.txt"), font=('Arial', 12)).place(x=450, y=300, width=150, height=60)
-        Button(win, text='History random', command=self.randomContent("data/history.txt"), font=('Arial', 12)).place(x=600, y=300, width=150, height=60)
+        Button(win, text='One Day random', command=self.randomContent(self.savePath+"1day.txt"), font=('Arial', 12)).place(x=0, y=300, width=150, height=60)
+        Button(win, text='Three Days random', command=self.randomContent(self.savePath+"3day.txt"), font=('Arial', 12)).place(x=150, y=300, width=150, height=60)
+        Button(win, text='Week random', command=self.randomContent(self.savePath+"7day.txt"), font=('Arial', 12)).place(x=300, y=300, width=150, height=60)
+        Button(win, text='Month random', command=self.randomContent(self.savePath+"30day.txt"), font=('Arial', 12)).place(x=450, y=300, width=150, height=60)
+        Button(win, text='History random', command=self.randomContent(self.savePath+"history.txt"), font=('Arial', 12)).place(x=600, y=300, width=150, height=60)
         #button: migrate
-        Button(win, text='One Day', command=self.migrate("data/1day.txt"), font=('Arial', 12)).place(x=0, y=670, width=150, height=60)
-        Button(win, text='Three Days', command=self.migrate("data/3day.txt"), font=('Arial', 12)).place(x=150, y=670, width=150, height=60)
-        Button(win, text='Week', command=self.migrate("data/7day.txt"), font=('Arial', 12)).place(x=300, y=670, width=150, height=60)
-        Button(win, text='Month', command=self.migrate("data/30day.txt"), font=('Arial', 12)).place(x=450, y=670, width=150, height=60)
-        Button(win, text='History', command=self.migrate("data/history.txt"), font=('Arial', 12)).place(x=600, y=670, width=150, height=60)
+        Button(win, text='One Day', command=self.migrate(self.savePath+"1day.txt"), font=('Arial', 12)).place(x=0, y=670, width=150, height=60)
+        Button(win, text='Three Days', command=self.migrate(self.savePath+"3day.txt"), font=('Arial', 12)).place(x=150, y=670, width=150, height=60)
+        Button(win, text='Week', command=self.migrate(self.savePath+"7day.txt"), font=('Arial', 12)).place(x=300, y=670, width=150, height=60)
+        Button(win, text='Month', command=self.migrate(self.savePath+"30day.txt"), font=('Arial', 12)).place(x=450, y=670, width=150, height=60)
+        Button(win, text='History', command=self.migrate(self.savePath+"history.txt"), font=('Arial', 12)).place(x=600, y=670, width=150, height=60)
         #button: next
         Button(win, text='Next', command=self.next).place(x=750, y=410, width=120, height=70)
         #button: delete
@@ -80,7 +84,7 @@ class StudyAssistant:
         if len(content) > 300:
             self.tip4ExceedLength()
             return
-        file = open("data/1day.txt", "a", encoding="utf8")
+        file = open(self.savePath+"1day.txt", "a", encoding="utf8")
         self.writeContent(file, content)
         self.text.delete("0.0", END)
 
