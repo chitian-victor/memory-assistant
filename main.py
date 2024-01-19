@@ -128,6 +128,8 @@ class StudyAssistant:
             self.writeContent(file, data)
             # delete
             self.delete()
+            # next
+            self.next()
 
         return func
 
@@ -135,6 +137,7 @@ class StudyAssistant:
         result = tkinter.messagebox.askquestion(title='Tip~', message='Are you sure to delete？')
         if result == "yes":
             self.delete()
+            self.next()
 
     def delete(self):
         content = self.var.get()
@@ -158,6 +161,7 @@ class StudyAssistant:
 
     # next
     def next(self):
+        print("next")
         self.current += 1
         if self.current >= len(self.content):
             self.var.set("")
