@@ -106,7 +106,7 @@ class StudyAssistant:
             for idx, d in enumerate(data):
                 if d != "":
                     newData.append(d)
-            randomNum = 10
+            randomNum = 20
             if len(newData) <= randomNum:
                 self.content = newData
             else:
@@ -119,7 +119,6 @@ class StudyAssistant:
         return func
 
     def migrate(self, path):
-
         def func():
             file = open(path, "a", encoding="utf8")
             if self.current >= len(self.content):
@@ -146,8 +145,12 @@ class StudyAssistant:
         file = open(self.randomPath, "r", encoding="utf8")
         data = file.read().split("\n")
         newData = []
+        firstMatch = False
         for d in data:
-            if d == content or d == "":
+            if d=="":
+                continue
+            if not firstMatch and d == content:
+                firstMatch = True
                 continue
             newData.append(d)
         toWrite = "\n".join(newData)
