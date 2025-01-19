@@ -17,6 +17,11 @@ class StudyAssistant:
         self.savePath = wave+"/memory_assistant_data/"
         if not os.path.exists(self.savePath):
             os.mkdir(self.savePath)
+        # create files.txt
+        fileNames=["1day.txt","3days.txt","7days.txt","30days.txt","history.txt"]
+        for name in fileNames:
+            if not os.path.exists(self.savePath+name):
+                open(self.savePath+name,"w")
 
     def run(self):
         #main window
@@ -70,8 +75,16 @@ class StudyAssistant:
     def writeContent(self, file, content):
         if content in ("","\n","\r\n"):
             return
-        content = content.replace("\n", "")
-        file.write(content + "\n")
+        content = content.replace("\r", "")
+        sentences = content.split("\n")
+        ret=''
+        for s in sentences:
+            if s=='':
+                continue
+            ret+=(s+'\n')
+        if len(ret)==0:
+            return
+        file.write(ret)
         file.flush()
         file.close()
 
