@@ -2,4 +2,4 @@
 /build
 main.spec
 /memory_assistant_data
-.local_test.py
+local_test.py

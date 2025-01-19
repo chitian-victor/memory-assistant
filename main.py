@@ -17,7 +17,6 @@ class StudyAssistant:
         self.savePath = wave+"/memory_assistant_data/"
         if not os.path.exists(self.savePath):
             os.mkdir(self.savePath)
-
     def run(self):
         #main window
         win = Tk()
@@ -70,8 +69,16 @@ class StudyAssistant:
     def writeContent(self, file, content):
         if content in ("","\n","\r\n"):
             return
-        content = content.replace("\n", "")
-        file.write(content + "\n")
+        content = content.replace("\r", "")
+        sentences = content.split("\n")
+        ret=''
+        for s in sentences:
+            if s=='':
+                continue
+            ret+=(s+'\n')
+        if len(ret)==0:
+            return
+        file.write(ret)
         file.flush()
         file.close()
 
@@ -83,7 +90,7 @@ class StudyAssistant:
 
     def add(self):
         content = self.text.get("0.0", END)
-        if len(content) > 300:
+        if len(content) > 100000:
             self.tip4ExceedLength()
             return
         file = open(self.savePath+"1day.txt", "a", encoding="utf8")
