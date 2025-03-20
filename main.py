@@ -15,7 +15,8 @@ class StudyAssistant:
         # for mac os
         wave = os.path.expanduser("~")
         # self.savePath = wave+"/memory_assistant_data/"
-        self.savePath = wave+"/python/memory-assistant/hs_data/" # TODO-hs change path
+        # self.savePath = wave+"/python/memory-assistant/hs_data/" # TODO-hs change path
+        self.savePath = wave+"/projects/python/memory-assistant/hs_data/" # TODO-hs change path
         if not os.path.exists(self.savePath):
             os.mkdir(self.savePath)
     def run(self):
