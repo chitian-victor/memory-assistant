@@ -64,7 +64,6 @@ class StudyAssistant:
                 continue
             if index not in a:
                 a.append(index)
-        print(a, maxNum)
         return a
 
     def writeContent(self, file, content):
@@ -172,7 +171,6 @@ class StudyAssistant:
 
     # next
     def next(self):
-        print("next")
         self.current += 1
         if self.current >= len(self.content):
             self.var.set("")
