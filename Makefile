@@ -1,2 +1,2 @@
 all:
-	pyinstaller -D --noconsole main.py
+	pyinstaller -D --noconsole appV2.py
