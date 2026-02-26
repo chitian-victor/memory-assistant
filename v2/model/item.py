@@ -1,4 +1,4 @@
-from v2.utils.cal_weight import cal_item_weight
+from  v2.utils.cal_weight import cal_item_weight
 class ItemCls:
     def __init__(self,data,create_time,last_time,forget_times,weight=0):
         self.data: str=data

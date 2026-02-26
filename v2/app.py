@@ -2,13 +2,10 @@ import os.path
 from tkinter import *
 import tkinter.messagebox as GUI
 from pathlib import Path
-from v2.utils.cal_weight import *
-from v2.model.item import *
+from utils.cal_weight import *
+from model.item import *
 from tkmacosx import Button  # 从 tkmacosx 导入 Button 为了适配 mac 系统，解决按钮背景色不生效的问题
 
-
-# TODO-hs
-# 2. 丢给 agent 优化一下 (已完成)
 class MemoryAssistant:
     def __init__(self):
         # 基础常量
@@ -17,26 +14,27 @@ class MemoryAssistant:
         self.item_info_separator = '\n'+'--'*10+'\n'  # 条目与属性信息的分隔符
         self.review_target_text="Ready to Review. Target: %d / %d"
         self.file_name = "items.txt"
-        self.review_amount=20 # todo-hs 支持修改,必须大于 0
+        self.review_amount=20
         self.current_idx=-1
         self.items=[]
 
         # 1. 初始化文件
         # for mac os
         wave = os.path.expanduser("~")
-        self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
-        # self.save_path = wave + "/memory-assistant/data/" + self.file_name # TODO-hs prod path
+        # 我把自己的私有数据单独存入另一个 github 仓库了
+        self.save_path = wave + "/my_github/memory-assistant-private/v2/data/" + self.file_name # TODO-hs prod path
+        # self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
         file_path = Path(self.save_path)
+        # 不存在就创建文件夹及文件
         file_path.parent.mkdir(parents=True, exist_ok=True)
-
         # 2. 加载全部条目,重新计算权重
-        with open(file_path, 'r+', encoding='utf-8') as f:
+        with open(file_path, 'w+', encoding='utf-8') as f:
             data = f.read()
             if data.strip():
                 self.items = self.parse_items(data)
                 # print_items(self.items) # debug
     def parse_items(self, data):
-        # [首次添加时间, 上次背诵时间, 不认识次数, 权重]
+        # 条目属性信息格式：[首次添加时间, 上次背诵时间, 不认识次数, 权重]
         data_list = data.split(self.item_separator)
         if not data_list[-1]:
             data_list = data_list[:-1]
@@ -229,7 +227,7 @@ class MemoryAssistant:
         self.display_text.config(state=NORMAL)
         self.display_text.delete("1.0", END)
         self.display_text.insert("1.0", content)
-        # 默认就是左对齐，不需要再额外打标签了
+        # 默认左对齐
         self.display_text.config(state=DISABLED)
     def update_review_amount(self):
         try:
