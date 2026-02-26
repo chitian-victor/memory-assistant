@@ -4,17 +4,19 @@ import tkinter.messagebox as GUI
 from pathlib import Path
 from v2.utils.cal_weight import *
 from v2.model.item import *
+from tkmacosx import Button  # 从 tkmacosx 导入 Button 为了适配 mac 系统，解决按钮背景色不生效的问题
 
 
 # TODO-hs
 # 2. 丢给 agent 优化一下 (已完成)
 # 3. 支持手动调整条目数量
-# 4. 调整按钮颜色
-
 class MemoryAssistant:
     def __init__(self):
         # 基础常量
-        self.separator = ', '  # 条目属性信息记录的分隔符，包括首次添加时间，上次背诵时间，不认识次数，权重
+        self.info_separator = ', '  # 条目属性信息记录的分隔符，包括首次添加时间，上次背诵时间，不认识次数，权重
+        self.item_separator = '\n'+'=*='*10+'\n'  # 条目之间的分隔符
+        self.item_info_separator = '\n'+'--'*10+'\n'  # 条目与属性信息的分隔符
+        self.review_target_text="Ready to Review. Target: %d / %d"
         self.file_name = "items.txt"
         self.review_amount=20 # todo-hs 支持修改,必须大于 0
         self.current_idx=0
@@ -36,15 +38,17 @@ class MemoryAssistant:
                 print_items(self.items)
     def parse_items(self, data):
         # [首次添加时间, 上次背诵时间, 不认识次数, 权重]
-        data_list = data.split('\n')
-        data_list = data_list[:-1]
+        data_list = data.split(self.item_separator)
+        if not data_list[-1]:
+            data_list = data_list[:-1]
         items = []
-        for i in range(0, len(data_list), 2):
-            item_idx, info_idx = i, i + 1
-            info = data_list[info_idx]
-            info_list = info.split(self.separator)
+        for i in range(len(data_list)):
+            item_str=data_list[i].split(self.item_info_separator)
+            data=item_str[0]
+            info = item_str[1]
+            info_list = info.split(self.info_separator)
 
-            item = ItemCls(data_list[item_idx], info_list[0], info_list[1], int(info_list[2]))
+            item = ItemCls(data, info_list[0], info_list[1], int(info_list[2]))
             item.weight = cal_item_weight(item)
             # 过滤掉不认识次数为 0 的 ，只在软件初始化的时候才会排除在外，之后会跟随刷新数据
             if item.forget_times <= 0:
@@ -55,69 +59,109 @@ class MemoryAssistant:
         return items
 
     def run(self):
-        # main window
+        # main window setup
         win = Tk()
-        win.title("memory-assistant")
+        win.title("Memory Assistant - Smart Review")
         win.geometry('900x750')
-        # input entity
-        self.text = Text(win, autoseparators=False, font=('宋体', 16, 'bold'))
-        self.text.place(x=10, y=10, width=720, height=260)
-        # output entity
-        self.var = StringVar()
+        win.configure(bg="#F5F5F7")  # 柔和的浅灰背景
 
-        (Label(win, textvariable=self.var, bg='white', font=('宋体', 15, "bold"), justify='left', wraplength=600).
-         place(x=10, y=370, width=720, height=280))
-        # button: add
-        (Button(win, text='Add', command=self.add).
-         place(x=750, y=80, width=120, height=70))
-        # button: review
-        (Button(win, text='Review', command=self.generate_review_list, font=('Arial', 12)).
-         place(x=0, y=300, width=150,height=60))
-        # button: know
-        (Button(win, text='Know', command=self.next(True)).
-         place(x=750, y=410, width=120, height=70))
-        # button: don't know
-        (Button(win, text="Don't know", command=self.next(False)).
-         place(x=750, y=520, width=120, height=70))
-        # button: delete
-        (Button(win, text='Delete', command=self.delete).
-         place(x=0, y=670, width=150, height=60))
+        # --- SECTION 1: Input Area (支持滚动条滑动输入) ---
+        Label(win, text="Add New Items (One per line):", bg="#F5F5F7", font=('Helvetica', 14, 'bold'),
+              fg="#333333").place(x=20, y=10)
+
+        # 使用 Frame 包裹输入框和滚动条
+        self.input_frame = Frame(win, bg='white', highlightthickness=1, highlightbackground="#CCCCCC")
+        self.input_frame.place(x=20, y=40, width=710, height=200)
+
+        # 输入区滚动条
+        self.input_scrollbar = Scrollbar(self.input_frame)
+        self.input_scrollbar.pack(side=RIGHT, fill=Y)
+
+        # 输入文本框 (wrap=WORD 保证长句子会自动换行展示而不是超出屏幕)
+        self.text = Text(self.input_frame, autoseparators=False, font=('宋体', 16), bd=0,
+                         yscrollcommand=self.input_scrollbar.set, wrap=WORD)
+        self.text.pack(side=LEFT, fill=BOTH, expand=True, padx=5, pady=5)
+        self.input_scrollbar.config(command=self.text.yview)
+
+        Button(win, text='Add\nItems', command=self.add, bg="#5AC8FA", fg="white", font=('Helvetica', 14, 'bold'),
+               borderless=1).place(x=750, y=40, width=130, height=200)
+
+        # Divider line
+        Frame(win, bg="#D1D1D6").place(x=20, y=265, width=860, height=2)
+
+        # --- SECTION 2: Review Area (左对齐展示区) ---
+        self.status_var = StringVar()
+        self.status_var.set("Ready to Review. Target: 0 / 0")
+        Label(win, textvariable=self.status_var, bg="#F5F5F7", font=('Helvetica', 14, 'italic'), fg="#666666").place(
+            x=20, y=285)
+
+        Button(win, text='Start Review', command=self.generate_review_list, bg="#63B8FF", fg="white",
+               font=('Helvetica', 14, 'bold'), borderless=1).place(x=750, y=280, width=130, height=40)
+
+        # 使用 Frame 包裹展示区和滚动条
+        self.display_frame = Frame(win, bg='white', relief="groove", borderwidth=2)
+        self.display_frame.place(x=20, y=340, width=860, height=250)
+
+        # 展示区滚动条
+        self.display_scrollbar = Scrollbar(self.display_frame)
+        self.display_scrollbar.pack(side=RIGHT, fill=Y)
+
+        # 展示文本框 (取消了 center 标签，默认左对齐)
+        self.display_text = Text(self.display_frame, font=('宋体', 18), bg='white',
+                                 yscrollcommand=self.display_scrollbar.set, wrap=WORD,
+                                 highlightthickness=0, borderwidth=0)
+
+        self.display_text.pack(side=LEFT, fill=BOTH, expand=True, padx=20, pady=20)
+        self.display_scrollbar.config(command=self.display_text.yview)
+        self.display_text.config(state=DISABLED)  # 初始只读
+
+        # --- SECTION 3: Action Controls ---
+        Button(win, text='KNOW', command=self.next(True), bg="#A1E9B4", fg="#1E6130",
+               font=('Helvetica', 16, 'bold'), borderless=1).place(x=20, y=620, width=320, height=80)
+
+        Button(win, text="DON'T KNOW", command=self.next(False), bg="#FFF68F", fg="#8A1E1E",
+               font=('Helvetica', 16, 'bold'), borderless=1).place(x=360, y=620, width=320, height=80)
+
+        Button(win, text='Delete', command=self.delete, bg="#828282", fg="#FFFFFF", font=('Helvetica', 14),
+               borderless=1).place(x=700, y=620, width=180, height=80)
+
         win.mainloop()
-        # 软件结束之后将 items 覆盖写入
-        print("[run] flush items, items.length=%d"%(len(self.items)))
+
+        print(f"[run] flush items, items.length={len(self.items)}")
         self.flush_items()
     def flush_items(self):
         file = open(self.save_path, "w", encoding="utf8")
         self.batch_write_items(file,self.items)
 
+    def update_display_text(self, content):
+        """安全地更新展示区的文本内容（左对齐）"""
+        self.display_text.config(state=NORMAL)
+        self.display_text.delete("1.0", END)
+        self.display_text.insert("1.0", content)
+        # 默认就是左对齐，不需要再额外打标签了
+        self.display_text.config(state=DISABLED)
     def generate_review_list(self):
         self.current_idx=0
         self.items=sorted(self.items,key=lambda x:x.weight,reverse=True)
         if len(self.items)==0:
             self.tip_for_nothing()
             return
-        self.var.set(self.items[self.current_idx].data)
+        self.update_status_var()
+        self.update_display_text(self.items[self.current_idx].data)
 
-    def convert_content_to_item(self,content):
+    def convert_content_to_items(self,content):
         # support batch input
-        if content in ("", "\n", "\r\n"):
-            return
-        content = content.replace("\r", "")
-        item_data_list = content.split("\n")
         items=[]
         current_time = format_current_time()
-        for item_data in item_data_list:
-            if not item_data:
-                continue
-            item=ItemCls(item_data,current_time,current_time,3)
-            item.weight=cal_item_weight(item)
-            items.append(item)
+        item=ItemCls(content,current_time,current_time,3)
+        item.weight=cal_item_weight(item)
+        items.append(item)
         return items
     def batch_write_items(self,file,items):
         # iterate items
         ret = ''
         for item in items:
-            ret += self.format_item(item) + '\n'
+            ret += self.format_item(item) + self.item_separator
         if len(ret) == 0:
             return
         file.write(ret)
@@ -126,18 +170,21 @@ class MemoryAssistant:
 
     def format_item(self, item: ItemCls):
         # [首次添加时间, 上次背诵时间, 不认识次数, 权重]，不认识次数默认为 3
-        ret = item.data + '\n' + self.separator.join([item.create_time,item.last_time, str(item.forget_times), str(item.weight)])
+        ret = item.data + self.item_info_separator + self.info_separator.join([item.create_time,item.last_time, str(item.forget_times), str(item.weight)])
         return ret
     def add(self):
         content = self.text.get("0.0", END)
         if len(content) > 100000:
             self.tip_for_exceed_length()
             return
-
-        file = open(self.save_path, "a", encoding="utf8")
-        items = self.convert_content_to_item(content)
+        content=content.rstrip('\n')
+        content=content.rstrip('\r\n')
+        if len(content)==0:
+            return
+        items = self.convert_content_to_items(content)
         # 添加到末尾
         self.items+=items
+        file = open(self.save_path, "a", encoding="utf8")
         self.batch_write_items(file, items)
         self.text.delete("0.0", END)
 
@@ -161,12 +208,17 @@ class MemoryAssistant:
             item.update_last_time(format_current_time())
             self.current_idx+=1
             self.flush_items()
+            self.update_status_var()
             if self.current_idx>=self.review_amount or self.current_idx >= len(self.items):
-                self.var.set("")
+                self.update_display_text("")
                 self.tip_for_nothing()
                 return
-            self.var.set(self.items[self.current_idx].data)
+            self.update_display_text(self.items[self.current_idx].data)
         return next_
+
+    def update_status_var(self):
+        review_target_text= self.review_target_text % (self.current_idx, self.review_amount)
+        self.status_var.set(review_target_text)
 
     def tip_for_exceed_length(self):
         GUI.showinfo(title='Tip~', message='content exceed max length.')
