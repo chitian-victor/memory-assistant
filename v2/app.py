@@ -18,7 +18,7 @@ class MemoryAssistant:
         self.review_target_text="Ready to Review. Target: %d / %d"
         self.file_name = "items.txt"
         self.review_amount=20 # todo-hs 支持修改,必须大于 0
-        self.current_idx=0
+        self.current_idx=-1
         self.items=[]
 
         # 1. 初始化文件
@@ -65,7 +65,7 @@ class MemoryAssistant:
         win.configure(bg="#F5F5F7")  # 柔和的浅灰背景
 
         # --- SECTION 1: Input Area (支持滚动条滑动输入) ---
-        Label(win, text="Add New Items (One per line):", bg="#F5F5F7", font=('Helvetica', 14, 'bold'),
+        Label(win, text="Add New Item:", bg="#F5F5F7", font=('Helvetica', 14, 'bold'),
               fg="#333333").place(x=20, y=10)
 
         # 使用 Frame 包裹输入框和滚动条
@@ -82,7 +82,7 @@ class MemoryAssistant:
         self.text.pack(side=LEFT, fill=BOTH, expand=True, padx=5, pady=5)
         self.input_scrollbar.config(command=self.text.yview)
 
-        Button(win, text='Add\nItems', command=self.add, bg="#5AC8FA", fg="white", font=('Helvetica', 14, 'bold'),
+        Button(win, text='Add', command=self.add, bg="#5AC8FA", fg="white", font=('Helvetica', 16, 'bold'),
                borderless=1).place(x=750, y=40, width=130, height=200)
 
         # Divider line
@@ -106,11 +106,9 @@ class MemoryAssistant:
                                   bd=0, highlightthickness=0)
         # 让输入框完全填满底层的小 Frame
         self.amount_entry.pack(fill=BOTH, expand=True, padx=2, pady=2)
-        # ================================
-
+        # button review
         Button(win, text='Start Review', command=self.generate_review_list, bg="#63B8FF", fg="white",
                font=('Helvetica', 14, 'bold'), borderless=1).place(x=750, y=280, width=130, height=40)
-
         # 使用 Frame 包裹展示区和滚动条
         self.display_frame = Frame(win, bg='white', relief="groove", borderwidth=2)
         self.display_frame.place(x=20, y=340, width=860, height=250)
@@ -137,9 +135,6 @@ class MemoryAssistant:
 
         Button(win, text='Delete', command=self.delete, bg="#828282", fg="#FFFFFF", font=('Helvetica', 14),
                borderless=1).place(x=700, y=620, width=180, height=80)
-
-        # 组件初始化完成之后需要做的事情：
-        self.generate_review_list()
 
         win.mainloop()
 
@@ -199,17 +194,17 @@ class MemoryAssistant:
             self.text.delete("0.0", END)
 
     def delete(self):
-        if self.current_idx < len(self.items):
+        if 0<=self.current_idx < min(len(self.items),self.review_amount) :
             item=self.items[self.current_idx]
             item.update_forget_times(0)
             item.update_last_time(format_current_time())
-        self.next(True)()
-        self.flush_items()
+            self.next(True)()
+            self.flush_items()
 
     # next
     def next(self,know: bool):
         def next_():
-            if len(self.items)==0:
+            if len(self.items)==0 or self.current_idx>=self.review_amount or self.current_idx<0:
                 return
             increment = -1 if know else 1
             item=self.items[self.current_idx]
