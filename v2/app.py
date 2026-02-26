@@ -1,17 +1,15 @@
-import json
-import math
 import os.path
 from tkinter import *
 import tkinter.messagebox as GUI
-import tkinter
 from pathlib import Path
-from utils.cal_weight import *
-from model.item import *
+from v2.utils.cal_weight import *
+from v2.model.item import *
 
 
 # TODO-hs
-# 2. 丢给 agent 优化一下，变量名字是否要改为下划线 (已完成)
+# 2. 丢给 agent 优化一下 (已完成)
 # 3. 支持手动调整条目数量
+# 4. 调整按钮颜色
 
 class MemoryAssistant:
     def __init__(self):
@@ -25,8 +23,7 @@ class MemoryAssistant:
         # 1. 初始化文件
         # for mac os
         wave = os.path.expanduser("~")
-        # 修复了原来报错的 self.fileName 为 self.file_name
-        self.save_path = wave + "/my_github/memory-assistant/data/" + self.file_name  # TODO-hs debug path
+        self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
         # self.save_path = wave + "/memory-assistant/data/" + self.file_name # TODO-hs prod path
         file_path = Path(self.save_path)
         file_path.parent.mkdir(parents=True, exist_ok=True)

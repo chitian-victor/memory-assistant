@@ -14,7 +14,7 @@ class StudyAssistant:
 
         # for mac os
         wave = os.path.expanduser("~")
-        self.save_path = wave + "/my_github/memory-assistant/data/"  # TODO-hs debug path
+        self.save_path = wave + "/my_github/memory-assistant/v1/data/"  # TODO-hs debug path
         # self.save_path = wave + "/memory-assistant/data/"  # TODO-hs prod path
 
         if not os.path.exists(self.save_path):
