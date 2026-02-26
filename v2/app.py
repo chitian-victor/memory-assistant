@@ -60,7 +60,7 @@ class MemoryAssistant:
     def run(self):
         # main window setup
         win = Tk()
-        win.title("Memory Assistant - Smart Review")
+        win.title("Memory Assistant")
         win.geometry('900x750')
         win.configure(bg="#F5F5F7")  # 柔和的浅灰背景
 
