@@ -1,3 +1,4 @@
-Good morning!
-Good afternoon！
-Good evening！
+# TODO：
+1. 支持分类存储，直接用txt 文件区分即可，工具中显示正在使用哪个文件
+2. 支持新建文件/类别
+3. 支持上传到远程 github
