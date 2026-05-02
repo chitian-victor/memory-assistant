@@ -5,3 +5,5 @@ app.spec
 .idea
 .DS_Store
 tests/
+__pycache__/
+test.py

@@ -22,13 +22,14 @@ class MemoryAssistant:
         # for mac os
         wave = os.path.expanduser("~")
         # 我把自己的私有数据单独存入另一个 github 仓库了
-        self.save_path = wave + "/my_github/memory-assistant-private/v2/data/" + self.file_name # TODO-hs prod path
-        # self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
+        # self.save_path = wave + "/my_github/memory-assistant-private/v2/data/" + self.file_name # TODO-hs prod path
+        self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
         file_path = Path(self.save_path)
         # 不存在就创建文件夹及文件
         file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.touch(exist_ok=True)
         # 2. 加载全部词条,重新计算权重
-        with open(file_path, 'w+', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             data = f.read()
             if data.strip():
                 self.items = self.parse_items(data)
@@ -133,9 +134,7 @@ class MemoryAssistant:
 
         Button(win, text='Delete', command=self.delete, bg="#828282", fg="#FFFFFF", font=('Helvetica', 14),
                borderless=1).place(x=700, y=620, width=180, height=80)
-
         win.mainloop()
-
         print(f"[run] flush items, items.length={len(self.items)}")
         self.flush_items()
 
@@ -202,7 +201,7 @@ class MemoryAssistant:
     # next
     def next(self,know: bool):
         def next_():
-            if len(self.items)==0 or self.current_idx>=self.review_amount or self.current_idx<0:
+            if len(self.items)==0 or self.current_idx>=min(self.review_amount,len(self.items))  or self.current_idx<0:
                 return
             increment = -1 if know else 1
             item=self.items[self.current_idx]
