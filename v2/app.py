@@ -22,8 +22,8 @@ class MemoryAssistant:
         # for mac os
         wave = os.path.expanduser("~")
         # 我把自己的私有数据单独存入另一个 github 仓库了
-        # self.save_path = wave + "/my_github/memory-assistant-private/v2/data/" + self.file_name # TODO-hs prod path
-        self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
+        self.save_path = wave + "/my_github/memory-assistant-private/v2/data/" + self.file_name # TODO-hs prod path
+        # self.save_path = wave + "/my_github/memory-assistant/v2/data/" + self.file_name  # TODO-hs debug path
         file_path = Path(self.save_path)
         # 不存在就创建文件夹及文件
         file_path.parent.mkdir(parents=True, exist_ok=True)
