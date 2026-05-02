@@ -7,7 +7,7 @@
 pip install pyinstaller
 pip install tkmacosx
 ```
-
+3. 之后执行 make all 生成软件使用
 
 
 # TODO：

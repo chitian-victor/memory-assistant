@@ -7,3 +7,5 @@ app.spec
 tests/
 __pycache__/
 test.py
+memory-assistant.spec
+dist/
