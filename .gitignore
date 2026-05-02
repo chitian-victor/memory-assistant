@@ -1,6 +1,7 @@
-/dist
+xs/dist
 /build
 local_test.py
 app.spec
 .idea
 .DS_Store
+tests/

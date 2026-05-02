@@ -1,5 +1,5 @@
 import math
-from v2.utils.deal_time import *
+from utils.deal_time import *
 
 def cal_item_weight(item):
     first_interval=get_interval(item.create_time)

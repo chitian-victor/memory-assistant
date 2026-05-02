@@ -1,3 +1,4 @@
 /dist
 /build
 app.spec
+*/__pycache__/*
